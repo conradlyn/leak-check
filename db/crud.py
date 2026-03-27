@@ -111,7 +111,7 @@ def read_persons_by_dig(
         email_: str | None = None,
         qq_: int | None = None,
         max_depth: int = 1,  # ✅ 最大挖掘深度
-        max_records: int = 100  # ✅ 最大记录数保护（推荐）
+        max_records: int = 64  # ✅ 最大记录数保护（推荐）
 ) -> Sequence["Person"]:
     """
     深度查询（带深度限制 + 性能优化版）
