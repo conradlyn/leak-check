@@ -15,13 +15,13 @@ from lib.aggregation import clean_str_set, clean_int_set, clean_id_set
 from lib.masking import mask_list
 
 app = FastAPI(
-    root_path="/breach",
+    root_path="/leak-check",
     title="172.16.1.4",
     version="1.0.0",
     summary="个人信息 “泄漏” 查询接口",
     contact={
         "name": "嘉林数据",
-        "url": "https://breach.garinasset.com",
+        "url": "https://leak-check.garinasset.com",
         "email": "contact@garinasset.com",
     },
     license_info={
@@ -39,20 +39,20 @@ app.add_middleware(
 )
 
 
-@app.get("", summary="Hello breach! 🚀 http://172.16.1.4/breach",
+@app.get("", summary="Hello leak-check! 🚀 http://172.16.1.4/leak-check",
          response_class=PlainTextResponse,
          responses={
              200: {
                  "content": {
                      "text/plain": {
-                         "example": "Hello breach!\n"
+                         "example": "Hello leak-check!\n"
                      }
                  }
              }
          }
          )
 async def root():
-    return f"Hello breach!\n"
+    return f"Hello leak-check!\n"
 
 
 @app.get("/", summary="响应 数据库 记录",

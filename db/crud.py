@@ -9,7 +9,7 @@ from sqlmodel import Session, create_engine, select
 from models.database import Person
 
 # ---------- 数据库路径 ----------
-sqlite_file_name = "breach.db"
+sqlite_file_name = "leak-check.db"
 sqlite_url = f"sqlite:///db/{sqlite_file_name}"
 
 # ---------- 创建 Engine ----------

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 定义总库和子库路径
-TOTAL_DB="breach.db"
+TOTAL_DB="leak-check.db"
 SUB_DB="macOS.db"
 
 sqlite3 "$TOTAL_DB" <<SQL

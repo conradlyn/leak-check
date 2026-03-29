@@ -34,18 +34,18 @@ else
 fi
 
 echo "=== 克隆或更新项目 ==="
-if [ -d "breach" ]; then
-    cd breach || exit
+if [ -d "leak-check" ]; then
+    cd leak-check || exit
     if [ -d ".git" ]; then
         echo "已存在 git 仓库，尝试更新..."
         git pull
     else
-        echo "目录 breach 已存在，但不是 git 仓库，请手动处理"
+        echo "目录 leak-check 已存在，但不是 git 仓库，请手动处理"
         exit 1
     fi
 else
-    git clone https://github.com/garinasset/breach.git
-    cd breach || exit
+    git clone https://github.com/garinasset/leak-check.git
+    cd leak-check || exit
 fi
 
 echo "=== 安装 Python 3.14 ==="
@@ -62,5 +62,5 @@ uv sync --frozen
 echo "=== 安装完成 ==="
 echo "虚拟环境已创建，依赖已安装"
 echo "启动 API 的命令示例："
-echo "cd breach/"
+echo "cd leak-check/"
 echo "uv run uvicorn main:app --host 0.0.0.0 --port 8000"

@@ -14,4 +14,4 @@ wheels/
 
 #
 .idea/
-/db/breach.db
+/db/leak-check.db

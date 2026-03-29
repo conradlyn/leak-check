@@ -1,11 +1,11 @@
 [Unit]
-Description=breach API (uvicorn)
+Description=「leak-check」 API (uvicorn)
 After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
-WorkingDirectory=/home/debian/breach
+User=debian
+WorkingDirectory=/home/debian/leak-check
 
 # 环境变量
 Environment="PATH=/home/debian/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
