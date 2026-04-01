@@ -17,7 +17,7 @@ from lib.masking import mask_list
 app = FastAPI(
     root_path="/leak-check",
     title="172.16.1.4",
-    version="2.9.0",
+    version="3.0.0",
     summary="个人信息 “泄漏” 查询接口",
     contact={
         "name": "嘉林数据",
@@ -72,6 +72,8 @@ async def get_counts(session: SessionDep):
     return counts
 
 
+import re
+
 # ---------- 类型识别函数 ----------
 def detect_input_type(user_input: str) -> str:
     """
@@ -83,19 +85,38 @@ def detect_input_type(user_input: str) -> str:
     - unknown
     """
 
-    phone_pattern = r"^1\d{10}$"
-    # 排除手机号的 QQ
-    qq_pattern = r"^(?!1\d{10}$)\d{5,11}$"
-    email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-    id_pattern = r"^\d{17}[\dXx]$"
+    # 👉 统一清洗（去空格、-、括号）
+    cleaned = re.sub(r"[ \-\(\)]", "", user_input)
 
-    if re.fullmatch(phone_pattern, user_input):
+    # 国内手机号
+    cn_phone_pattern = r"^1\d{10}$"
+
+    # 国际手机号（E.164）
+    intl_phone_pattern = r"^\+\d{6,15}$"
+
+    phone_pattern = rf"(?:{cn_phone_pattern})|(?:{intl_phone_pattern})"
+
+    email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+
+    # 中国大陆身份证
+    mainland_id_pattern = r"^\d{17}[\dXx]$"
+
+    # 台湾身份证（ROC ID）
+    taiwan_id_pattern = r"^[A-Z][12]\d{8}$"
+
+    # 合并
+    id_pattern = rf"(?:{mainland_id_pattern})|(?:{taiwan_id_pattern})"
+
+    # 👉 QQ：排除所有电话格式
+    qq_pattern = rf"^(?!{phone_pattern}$)\d{{5,11}}$"
+
+    if re.fullmatch(phone_pattern, cleaned):
         return "phone"
     elif re.fullmatch(email_pattern, user_input):
         return "email"
     elif re.fullmatch(id_pattern, user_input):
         return "id"
-    elif re.fullmatch(qq_pattern, user_input):
+    elif re.fullmatch(qq_pattern, cleaned):
         return "qq"
     else:
         return "unknown"

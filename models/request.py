@@ -19,11 +19,30 @@ class ModelRequestQuery(BaseModel):
 
         q_ = q_.strip()
 
-        # 正则规则
-        phone_pattern = r"^1\d{10}$"
-        qq_pattern = r"^(?!1\d{10}$)\d{5,11}$"  # 排除手机号的 QQ
+        # 👉 统一清洗（去空格、-、括号）
+        cleaned = re.sub(r"[ \-\(\)]", "", q_)
+
+        # 国内手机号
+        cn_phone_pattern = r"^1\d{10}$"
+
+        # 国际手机号（E.164）
+        intl_phone_pattern = r"^\+\d{6,15}$"
+
+        phone_pattern = rf"(?:{cn_phone_pattern})|(?:{intl_phone_pattern})"
+
         email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        id_pattern = r"^\d{17}[\dXx]$"
+
+        # 中国大陆身份证
+        mainland_id_pattern = r"^\d{17}[\dXx]$"
+
+        # 台湾身份证（ROC ID）
+        taiwan_id_pattern = r"^[A-Z][12]\d{8}$"
+
+        # 合并
+        id_pattern = rf"(?:{mainland_id_pattern})|(?:{taiwan_id_pattern})"
+
+        # 👉 QQ：排除所有电话格式
+        qq_pattern = rf"^(?!{phone_pattern}$)\d{{5,11}}$"
 
         # 校验是否至少符合一种
         if not (re.fullmatch(phone_pattern, q_) or
