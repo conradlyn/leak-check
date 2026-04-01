@@ -82,7 +82,7 @@ def mask_value(field: str, v: Optional[str]) -> str:
         return mask_name(v)
     if field == "car":
         return mask_car(v)
-    if field == "address":
+    if field in ("address", "company"):
         return mask_address(v)
 
     return v
