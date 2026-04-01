@@ -2,28 +2,74 @@ from typing import Annotated, Sequence, Set
 
 from fastapi import Depends
 from pydantic import EmailStr
-from sqlalchemy import func
-from sqlalchemy.orm import selectinload
+from sqlalchemy import event, func
 from sqlmodel import Session, create_engine, select
 
 from models.database import Person
 
-# ---------- 数据库路径 ----------
+
+# =========================
+# 📦 SQLite 数据库配置
+# =========================
 sqlite_file_name = "leak-check.db"
 sqlite_url = f"sqlite:///db/{sqlite_file_name}"
 
-# ---------- 创建 Engine ----------
-connect_args = {"check_same_thread": False}  # SQLite 特有
-engine = create_engine(sqlite_url, connect_args=connect_args)
+
+# =========================
+# ⚙️ 创建 Engine
+# =========================
+connect_args = {
+    "check_same_thread": False  # FastAPI + SQLite 必须
+}
+
+engine = create_engine(
+    sqlite_url,
+    connect_args=connect_args,
+    pool_pre_ping=True,   # 防止断连
+    pool_recycle=3600      # 长连接回收
+)
 
 
-# ---------- Session 依赖 ----------
+# =========================
+# 🚀 SQLite PRAGMA 优化
+# =========================
+@event.listens_for(engine, "connect")
+def set_sqlite_pragmas(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+
+    # =========================
+    # 🔥 性能核心配置
+    # =========================
+
+    # WAL 模式（并发读写优化）
+    cursor.execute("PRAGMA journal_mode = WAL;")
+
+    # 读写平衡（比 FULL 快很多）
+    cursor.execute("PRAGMA synchronous = NORMAL;")
+
+    # 🔥 内存缓存（约 200MB）
+    cursor.execute("PRAGMA cache_size = -200000;")
+
+    # 🔥 临时表全部进内存（排序 / GROUP BY / DISTINCT 加速）
+    cursor.execute("PRAGMA temp_store = MEMORY;")
+
+    # 🔥 mmap 加速读取（256MB）
+    cursor.execute("PRAGMA mmap_size = 268435456;")
+
+    # 提高并发读性能
+    cursor.execute("PRAGMA busy_timeout = 5000;")
+
+    cursor.close()
+
+
+# =========================
+# 🔗 FastAPI Session 依赖
+# =========================
 def get_session():
     with Session(engine) as session:
         yield session
 
 
-# 用于 FastAPI 注入依赖
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
