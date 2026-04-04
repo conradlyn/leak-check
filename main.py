@@ -72,7 +72,11 @@ async def get_counts(session: SessionDep):
     return counts
 
 
-@app.post("/dig/masking")
+@app.post(
+    "/dig/masking",
+    summary="查询 个人信息“泄漏” 记录 - 脱敏",
+    response_model=ModelResponsePersonAggregatedMasking,
+)
 def get_person_by_dig(body: ModelRequestQuery, session: SessionDep):
     persons: Sequence[Person] = []
 
